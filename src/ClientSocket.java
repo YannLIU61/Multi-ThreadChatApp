@@ -16,16 +16,14 @@ public class ClientSocket {
 
 		DataInputStream dis = new DataInputStream(s.getInputStream());
 		DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-		while (!succesed) {
-
+		do {
 			String pesudo = scn.nextLine();
 			dos.writeUTF(pesudo);
 			succesed = dis.readBoolean();
 			if (!succesed) {
 				System.out.println("Sorry, the pesudo has already been used...Please choose another one.");
 			}
-
-		}
+		} while (!succesed);
 
 		// sendMessage thread
 		Thread sendMessage = new Thread(new Runnable() {
@@ -55,12 +53,11 @@ public class ClientSocket {
 						String msg = dis.readUTF();
 						System.out.println(msg);
 					} catch (IOException e) {
-						//Error comes: When server closed socket
+						// Error comes: When server closed socket
 					}
 				}
 			}
 		});
-
 		sendMessage.start();
 		readMessage.start();
 
