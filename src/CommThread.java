@@ -26,24 +26,35 @@ public class CommThread implements Runnable {
 		this.s = s;
 	}
 
-	public void stopThread() {
+	public void stopThread(String name) {
 		// Stop thread by pesudo
 		for (Thread t : Thread.getAllStackTraces().keySet()) {
-			if (t.getName().equals(this.name)) {
+			if (t.getName().equals(name)) {
 				t.stop();
 				break;
 			}
 		}
 	}
 
+	public void deleteUser() throws IOException {
+		// closing resources
+		this.s.close();
+		this.dis.close();
+		this.dos.close();
+		// remove from client list
+		ServeurSocket._clients.remove(this);
+		// stop user's thread
+		stopThread(this.name);
+	}
+
 	@Override
 	public void run() {
 		String received;
+		String ins;
 		CommThread clientLeft = null;
 		while (true) {
 			try {
 				received = dis.readUTF();
-
 				if (received.equals("exit")) {
 					for (CommThread client : ServeurSocket._clients) {
 
@@ -54,27 +65,25 @@ public class CommThread implements Runnable {
 					}
 					break;
 				}
-
 				// the vector storing client of users
 				for (CommThread client : ServeurSocket._clients) {
-					// output stream
 					client.dos.writeUTF(this.name + " : " + received);
 				}
 			} catch (IOException e) {
+				// Exit abnormally, User forcibly exits program
+				System.out.println("User <" + this.name + "> disconnected......");
+				try {
+					deleteUser();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 
 		}
+		// Exit the chat normally by enter "exit"
 		try {
-			// closing resources
-			this.s.close();
-			this.dis.close();
-			this.dos.close();
-
-			// remove from client list
-			ServeurSocket._clients.remove(clientLeft);
-			// stop user's thread
-			stopThread();
-
+			deleteUser();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -50,10 +50,19 @@ public class ClientSocket {
 
 				while (true) {
 					try {
+
 						String msg = dis.readUTF();
 						System.out.println(msg);
 					} catch (IOException e) {
 						// Error comes: When server closed socket
+						System.out.println("Lost connection with Serveur");
+						try {
+							Thread.sleep(5000);
+						} catch (InterruptedException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						
 					}
 				}
 			}
